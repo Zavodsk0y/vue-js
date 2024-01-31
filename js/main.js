@@ -5,7 +5,7 @@ Vue.component('product', {
             required: true
         }
     },
-    template:`
+    template: `
     <div class="product">
         <div class="product-image">
             <img :src="image" :alt="altText">
@@ -29,6 +29,19 @@ Vue.component('product', {
             <p>Shipping: {{shipping}}</p>
             <a :href="link">More products like this</a>
         </div>
+        <div>
+        <h2>Reviews</h2>
+        <p v-if="!reviews.length">There are no reviews yet.</p>
+        <ul>
+          <li v-for="review in reviews">
+          <p>{{ review.name }}</p>
+          <p>Rating: {{ review.rating }}</p>
+          <p>{{ review.review }}</p>
+          <p>{{review.recommend}}</p>
+          </li>
+        </ul>
+        </div>
+        <product-review @review-submitted="addReview"></product-review>
         <div class="cart">
             <button v-on:click="addToCart" :disabled="!inStock" :class="{disabledButton: !inStock}">Add to cart</button>
             <button v-on:click="removeFromCart">Del from cart</button>
@@ -70,6 +83,8 @@ Vue.component('product', {
             details: ['80% cotton', '20% polyester', 'Gender-neutral'],
 
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL',],
+
+            reviews: [],
         }
     },
     methods: {
@@ -83,6 +98,9 @@ Vue.component('product', {
         removeFromCart() {
             this.$emit('remove-from-cart', this.variants[this.selectedVariant].variantId)
         },
+        addReview(productReview) {
+            this.reviews.push(productReview)
+        },
     },
     computed: {
         title() {
@@ -95,30 +113,109 @@ Vue.component('product', {
             return this.variants[this.selectedVariant].variantQuantity
         },
         sale() {
-            if (this.onSale) {return this.brand + ' ' + this.product + ' в распродаже прямо сейчас!'}
-            else {return this.brand + ' ' + this.product + ' сейчас отсутствует в распродаже!'}
+            if (this.onSale) {
+                return this.brand + ' ' + this.product + ' в распродаже прямо сейчас!'
+            } else {
+                return this.brand + ' ' + this.product + ' сейчас отсутствует в распродаже!'
+            }
         },
         shipping() {
             if (this.premium) return "Free"
             else return 2.99
-        }
-
+        },
     }
 })
 
 Vue.component('product-details', {
     props: {
-      details: {
-          type: Array,
-          required: true,
-      }
+        details: {
+            type: Array,
+            required: true,
+        }
     },
-    template:`
+    template: `
     <ul>
         <li v-for="detail in details">{{ detail }}</li>
     </ul>
     `,
 })
+
+Vue.component('product-review', {
+    template: `
+   <form class="review-form" @submit.prevent="onSubmit">
+ <p>
+   <label for="name">Name:</label>
+   <input id="name" v-model="name" placeholder="name">
+ </p>
+
+ <p>
+   <label for="review">Review:</label>
+   <textarea id="review" v-model="review"></textarea>
+ </p>
+
+ <p>
+   <label for="rating">Rating:</label>
+   <select id="rating" v-model.number="rating">
+     <option>5</option>
+     <option>4</option>
+     <option>3</option>
+     <option>2</option>
+     <option>1</option>
+   </select>
+ </p>
+ <p> <label for="recommend">Would you recommend this product?</label>
+ <label> yes
+ <input type="radio" value="yes" v-model="recommend">
+ </label>
+ <label> no
+ <input type="radio" value="no" v-model="recommend">
+ </label>
+ </p>
+<p v-if="errors.length">
+<b>Please correct the following error(s):</b>
+<ul>
+  <li v-for="error in errors">{{ error }}</li>
+</ul>
+</p>
+ <p>
+   <input type="submit" value="Submit"> 
+ </p>
+
+</form>
+`,
+    data() {
+        return {
+            name: null,
+            review: null,
+            rating: null,
+            recommend: null,
+            errors: [],
+        }
+    },
+    methods: {
+        onSubmit() {
+            if(this.name && this.review && this.rating && this.recommend) {
+                let productReview = {
+                    name: this.name,
+                    review: this.review,
+                    rating: this.rating,
+                    recommend: this.recommend,
+                }
+                this.$emit('review-submitted', productReview)
+                this.name = null
+                this.review = null
+                this.rating = null
+                this.recommend = null
+            } else {
+                if(!this.name) this.errors.push("Name required.")
+                if(!this.review) this.errors.push("Review required.")
+                if(!this.rating) this.errors.push("Rating required.")
+                if(!this.recommend) this.errors.push("Recommend required")
+            }
+        }
+    }
+})
+
 
 let app = new Vue({
     el: '#app',
