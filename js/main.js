@@ -18,7 +18,6 @@ Vue.component('product', {
             <p v-if="inStock">In Stock</p>
             <P v-else :class="{outOfStock: !inStock}">Out of stock</P>
             <p>{{ sale }}</p>
-            <product-details :details="details"></product-details>
             <ul>
                 <li v-for="size in sizes">{{ size }}</li>
             </ul>
@@ -37,7 +36,7 @@ Vue.component('product', {
             <button v-on:click="removeFromCart">Del from cart</button>
         </div>
         <product-tabs :reviews="reviews"></product-tabs>
-        <order-tabs :shipping="shipping" :details="details"></order-tabs>
+        <order-tabs :shipping="shipping"></order-tabs>
     </div>`,
     data() {
         return {
@@ -71,8 +70,6 @@ Vue.component('product', {
                     variantQuantity: 0
                 }
             ],
-
-            details: ['80% cotton', '20% polyester', 'Gender-neutral'],
 
             sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL',],
 
@@ -257,10 +254,6 @@ Vue.component('order-tabs', {
         shipping: {
             required: true
         },
-        details: {
-            type: Array,
-            required: true
-        }
     },
     template: `
      <div>   
@@ -275,16 +268,16 @@ Vue.component('order-tabs', {
          <p>{{ shipping }}</p>
        </div>
        <div v-show="selectedTab === 'Details'">
-         <ul>
-        <li v-for="detail in details">{{ detail }}</li>
-        </ul>
+        <product-details :details="details"></product-details>
        </div>
      </div>
 `,
     data() {
         return {
             tabs: ['Shipping', 'Details'],
-            selectedTab: 'Shipping'  // устанавливается с помощью @click
+            selectedTab: 'Shipping',
+            details: ['80% cotton', '20% polyester', 'Gender-neutral'],
+
         }
     }
 })
