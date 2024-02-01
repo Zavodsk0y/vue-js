@@ -78,11 +78,10 @@ Vue.component('product', {
     },
     methods: {
         addToCart() {
-            this.$emit('add-to-cart', this.variants[this.selectedVariant].variantId)
+            this.$emit('add-to-cart', [this.variants[this.selectedVariant].variantColor, this.variants[this.selectedVariant].variantId])
         },
         updateProduct(index) {
             this.selectedVariant = index
-            console.log(index)
         },
         removeFromCart() {
             this.$emit('remove-from-cart', this.variants[this.selectedVariant].variantId)
@@ -185,7 +184,7 @@ Vue.component('product-review', {
     },
     methods: {
         onSubmit() {
-            if(this.name && this.review && this.rating && this.recommend) {
+            if (this.name && this.review && this.rating && this.recommend) {
                 let productReview = {
                     name: this.name,
                     review: this.review,
@@ -198,10 +197,10 @@ Vue.component('product-review', {
                 this.rating = null
                 this.recommend = null
             } else {
-                if(!this.name) this.errors.push("Name required.")
-                if(!this.review) this.errors.push("Review required.")
-                if(!this.rating) this.errors.push("Rating required.")
-                if(!this.recommend) this.errors.push("Recommend required")
+                if (!this.name) this.errors.push("Name required.")
+                if (!this.review) this.errors.push("Review required.")
+                if (!this.rating) this.errors.push("Rating required.")
+                if (!this.recommend) this.errors.push("Recommend required")
             }
         }
     }
@@ -289,14 +288,21 @@ let app = new Vue({
         cart: [],
     },
     methods: {
-        updateCart(id) {
-            this.cart.push(id);
+        updateCart([color, id]) {
+            this.cart.push([color, id]);
         },
         deleteCartItem(id) {
+            console.log(id)
             for (let i = this.cart.length - 1; i >= 0; i--) {
-                if (this.cart[i] === id) {
+                if (this.cart[i][1] === id) {
                     this.cart.splice(i, 1)
                 }
+            }
+        },
+        showCart() {
+            console.log(this.cart)
+            for (let element of this.cart) {
+                for (let item of element) console.log(item)
             }
         }
     }

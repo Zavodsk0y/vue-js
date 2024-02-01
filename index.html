@@ -12,8 +12,13 @@
 </head>
 <body>
 <div id="app">
-    <div class="cart">
-        <p>Cart({{ cart.length }})</p>
+    <div class="dropdown">
+        <div class="cart" @mouseover="showCart">
+            <p>Cart({{ cart.length }})</p>
+        </div>
+        <div class="dropdown-content">
+                <p v-for="element in this.cart"><span v-for="el in element">{{el}}  </span></p>
+        </div>
     </div>
     <product :premium="premium" @add-to-cart="updateCart" @remove-from-cart="deleteCartItem"></product>
 </div>
